@@ -28,6 +28,7 @@ What We Want To Achive From This Repository :
 - Imporve Problem Solving Skill
 - Make A Massive Project Together
 
+
 #### Indonesia :
 
 Apa Yang Mau kami Capai Dari Repository Ini :
@@ -36,8 +37,19 @@ Apa Yang Mau kami Capai Dari Repository Ini :
 - Meningkat Kan Skill Pemecah Suatu Masalah
 - Membuat Sebuah Project Besar Bersama
 
+
 ## Lisence
 
 #### English : 
+This Project Is Licensed Under [MIT License](https://github.com/Hariswandi488/Project-Cihuyyyyy/blob/main/LICENSE).
+
+You Are Free To Use , Modify , And Share This Repository
+
 
 #### Indonesia : 
+Project Ini Di Lisensi Di Oleh [MIT License](https://github.com/Hariswandi488/Project-Cihuyyyyy/blob/main/LICENSE)
+
+Kamu Gratis Untuk menggunakan , Modifikasi , Dan Membagikan Repository Ini
+
+---
+#### Random Note : Mana 19 Juta Primo Yang Kau Janji Kan Itu Hoyok
