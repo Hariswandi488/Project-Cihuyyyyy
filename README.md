@@ -1,3 +1,3 @@
 # Project-Cihuyyyyy
 
-<img src=Assets/Images/Cihuyyy.png width=50%>
+<img src=Assets/Images/Cihuyyy.png width=20%>
