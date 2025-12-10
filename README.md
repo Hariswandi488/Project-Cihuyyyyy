@@ -1,3 +1,3 @@
 # Project-Cihuyyyyy
 
-![Cihuyy](Assets/Images/Cihuyyy.png)
+<img src=Assets/Images/Cihuyyy.png width=50%>
