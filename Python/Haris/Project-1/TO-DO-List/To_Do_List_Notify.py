@@ -35,6 +35,6 @@ def notification_Show(path):
 
 
 if __name__ == "__main__":
-    root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    root = (os.path.dirname(os.path.abspath(__file__)))
     file_path = os.path.join(root, "Tasks.db")
     notification_Show(file_path)

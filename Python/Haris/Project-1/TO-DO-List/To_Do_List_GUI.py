@@ -78,7 +78,8 @@ def Menu_default():
     button_done.place(relx=0.75, y=300, anchor="center")
     button_view.place(relx=0.25, y=450, anchor="center")
     button_view_done.place(relx=0.75, y=450, anchor="center")
-    button_close.place(relx=0.5, y=600, anchor="center")
+    button_close.place(relx=0.75, y=600, anchor="center")
+    button_edit.place(relx=0.25, y=600, anchor="center")
     listbox.place(relx=0.5, y=2000,  anchor="center")
     button_cancel.place(relx=0.5, y=2000, anchor="center")
     button_enter.place(relx=0.5, y=2000, anchor="center")
@@ -98,6 +99,7 @@ def Invisible_Menu():
     button_cancel.place_forget()
     button_enter.place_forget()
     Sound_volume.place_forget()
+    button_edit.place_forget()
 
 def button_add():
     global InMode
@@ -142,7 +144,7 @@ def Cancel():
     Menu_default()
 
 def enter(event=None):
-    global InMode
+    global InMode,New_Name,select_edit
     if InMode == 1:
         Task = entry.get()
         if Task:
@@ -181,7 +183,24 @@ def enter(event=None):
             done_tasks()
         except:
             messagebox.showinfo("Info", "Pilih Tugas Yang Mau Di Tandai Dulu")
-            
+    elif InMode == 5:
+        try:
+            select_edit = listbox.get(listbox.curselection())
+            Edit_Task()
+        except Exception as e:
+            print(e)
+            messagebox.showinfo("Info", "Pilih Tugas Yang Mau Di Tandai Dulu")
+    elif InMode == 6:
+        New_Name = entry.get()
+        if New_Name:
+            cursor.execute("UPDATE tasks SET Task = ? WHERE Task = ?", (New_Name, select_edit))
+            conn.commit()
+            entry.delete(0, tk.END)
+            Menu_default()
+            print(New_Name)
+        else:
+            messagebox.showwarning("Warning", "Input Tidak Boleh Kosong")
+
 
 def prog_task():
     global InMode
@@ -254,7 +273,7 @@ def Click(event=None):
 def startup():
     Start_Sound.play()
     play_BGM()
-    show_notification(Task_file)
+    show_notification(Task_path)
 
 def show_notification(task_path):
     notification_Show(task_path)
@@ -269,6 +288,42 @@ def deactive_vol(event=None):
     global volume_timer
     button_volume.place(relx=0.1, y=630)
     Sound_volume.place(relx=0.1, y=2000)
+
+def Edit_Task_list():
+    global InMode
+    InMode = 5
+    Invisible_Menu()
+    Label_title.config(text="Pilih Tugas Yang \nMau Di Ganti Nama nya")
+    Label_title.place(relx=0.5, y=60)
+    listbox.place(relx=0.5, y=325, anchor="center")
+    button_cancel.place(relx=0.35, y=625, anchor="center")
+    button_enter.place(relx=0.65, y=625, anchor="center")
+
+    listbox.delete(0, tk.END)
+    cursor.execute("SELECT * FROM tasks")
+    for i, row in enumerate(cursor.fetchall(), start=1):
+        listbox.insert(tk.END, row[1])
+    
+def Edit_Task():
+    global InMode
+    button_add.place_forget()
+    button_view.place_forget()
+    button_progress.place_forget()
+    button_done.place_forget()
+    button_view_done.place_forget()
+    button_del.place_forget()
+    button_close.place_forget()
+    listbox.place_forget() 
+    button_cancel.place_forget()
+    button_enter.place_forget()
+    Sound_volume.place_forget()
+    button_edit.place_forget()
+
+    entry.place(relx=0.5, rely=0.2, anchor="center")
+    Label_title.config(text="Isi Nama Baru")
+    button_cancel.place(relx=0.5, y=450, anchor="center")
+    button_enter.place(relx=0.5, y=300, anchor="center")
+    InMode = 6
 
 w = window.winfo_screenwidth()
 h = window.winfo_screenheight()
@@ -299,6 +354,7 @@ button_view_done = tk.Button(frame, width=20, height=3, font=("Arial", 20), text
 button_close = tk.Button(frame, width=20, height=3, font=("Arial", 20), command= Close_window, bg="gray", text="Keluar")
 Sound_volume = tk.Scale(frame, from_=0.0, to=1.0 , orient="horizontal", variable=volume_var, command=set_vol, length=200, resolution=0.01, bg="gray")
 button_volume = tk.Button(frame, text="\U0001F50A", command=volume_slider, bg="gray", font=("Arial", 15))
+button_edit = tk.Button(frame, text="Edit Nama Tugas", width=20, height=3, font=("Arial", 20), command= Edit_Task_list, bg="gray")
 
 window.bind("<Escape>", Close_window)
 window.bind("<Return>", enter)

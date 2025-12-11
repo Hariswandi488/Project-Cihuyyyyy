@@ -1,4 +1,4 @@
-import sqlite3
+import sqlite3,os
 
 
 texts = {
@@ -77,6 +77,11 @@ texts = {
 language_n = 0
 language = "id"
 
+base_path = os.path.dirname(os.path.abspath(__file__))
+Task_file = "Tasks.db"
+Task_Done_file = "Tasks_Done.db"
+Task_path = os.path.join(base_path, Task_file)
+Task_Done_path = os.path.join(base_path, Task_Done_file)
 
 ## Language Code
 def language_check(n):
@@ -97,7 +102,7 @@ def t(key):
     
 ## Data Base Code
 def setup_done():
-    conn = sqlite3.connect("Tasks_Done.db")
+    conn = sqlite3.connect(Task_Done_path)
     cursor = conn.cursor()
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS tasks(
@@ -110,7 +115,7 @@ def setup_done():
     conn.close()
 
 def view_complete_taks():
-    conn = sqlite3.connect("Tasks_Done.db")
+    conn = sqlite3.connect(Task_Done_path)
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM tasks")
     rows = cursor.fetchall()
@@ -127,7 +132,7 @@ def view_complete_taks():
     print("\n", t("Title List Done"), "\n")
     
 def Connect():
-    return sqlite3.connect("Tasks.db")
+    return sqlite3.connect(Task_path)
 
 def setup():
     conn = Connect()
@@ -182,7 +187,7 @@ def Inprogress_task(task_id):
 
 def done_task(task_id):
     conn = Connect()
-    conn1 = sqlite3.connect("Tasks_Done.db")
+    conn1 = sqlite3.connect(Task_Done_path)
     cursor = conn.cursor()
     cursor1 = conn1.cursor()
     
