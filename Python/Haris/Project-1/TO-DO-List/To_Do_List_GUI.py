@@ -215,7 +215,7 @@ def prog_task():
     listbox.delete(0, tk.END)
     cursor.execute("SELECT * FROM tasks WHERE Inprogress = ?", (False,))
     for i, row in enumerate(cursor.fetchall(), start=1):
-        listbox.insert(tk.END, row[1])
+        listbox.insert(tk.END, row[0])
 
 
 def done_tasks():
@@ -302,23 +302,11 @@ def Edit_Task_list():
     listbox.delete(0, tk.END)
     cursor.execute("SELECT * FROM tasks")
     for i, row in enumerate(cursor.fetchall(), start=1):
-        listbox.insert(tk.END, row[1])
+        listbox.insert(tk.END, row[2])
     
 def Edit_Task():
     global InMode
-    button_add.place_forget()
-    button_view.place_forget()
-    button_progress.place_forget()
-    button_done.place_forget()
-    button_view_done.place_forget()
-    button_del.place_forget()
-    button_close.place_forget()
-    listbox.place_forget() 
-    button_cancel.place_forget()
-    button_enter.place_forget()
-    Sound_volume.place_forget()
-    button_edit.place_forget()
-
+    Invisible_Menu()
     entry.place(relx=0.5, rely=0.2, anchor="center")
     Label_title.config(text="Isi Nama Baru")
     button_cancel.place(relx=0.5, y=450, anchor="center")
