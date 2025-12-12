@@ -215,7 +215,7 @@ def prog_task():
     listbox.delete(0, tk.END)
     cursor.execute("SELECT * FROM tasks WHERE Inprogress = ?", (False,))
     for i, row in enumerate(cursor.fetchall(), start=1):
-        listbox.insert(tk.END, row[2])
+        listbox.insert(tk.END, row[1])
 
 
 def done_tasks():
