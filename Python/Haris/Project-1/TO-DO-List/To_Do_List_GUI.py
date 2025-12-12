@@ -302,7 +302,7 @@ def Edit_Task_list():
     listbox.delete(0, tk.END)
     cursor.execute("SELECT * FROM tasks")
     for i, row in enumerate(cursor.fetchall(), start=1):
-        listbox.insert(tk.END, row[2])
+        listbox.insert(tk.END, row[1])
     
 def Edit_Task():
     global InMode
