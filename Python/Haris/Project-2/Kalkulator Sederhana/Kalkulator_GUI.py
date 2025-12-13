@@ -69,7 +69,16 @@ def backspace_op_check():
 
 def result():
     current = entry.get()
-    res = eval(current)
+    try: 
+        res = eval(current)
+        if isinstance(res, float):
+            res = round(res, 5)
+            if res.is_integer():
+                res = int(res)
+                
+    except ZeroDivisionError:
+        res = "Division By Zero"
+
     entry.delete(0, tk.END)
     entry.insert(0, res)
 
