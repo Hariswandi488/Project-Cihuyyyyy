@@ -1,14 +1,18 @@
 import tkinter as tk
 
+# Tk Init
 window = tk.Tk()
 window.geometry("480x720")
 window.title("Kalkulator Sederhana")
 
+# Other Frame
 frame = tk.Frame(window, bg="#2f2f2f")
 frame.place(x=0, y=0, relwidth=1, relheight=1)
 
+# Variable Check Double Operator
 op_check = 1
 
+# Place Button In Display (Layout Buttons)
 def setup_button():
     entry.place(relx=0.5, rely=0.1, anchor="center")
     but_float.place(relx=0.1, rely=0.9, anchor="center")
@@ -31,6 +35,7 @@ def setup_button():
     but_empty.place(relx=0.635, rely=0.9, anchor="center")
     but_equal.place(relx=0.9, rely=0.825, anchor="center")
 
+# Input Button Number To Displayer
 def input_angka(angka):
     global op_check
     last_entry = entry.get()
@@ -38,7 +43,7 @@ def input_angka(angka):
     entry.insert(0, last_entry + str(angka))
     op_check = 0
     
-
+# Input Button Operator To Displayer
 def input_operator(ope):
     global op_check
     if op_check == 0:
@@ -47,12 +52,13 @@ def input_operator(ope):
         entry.insert(0, last_entry + str(ope))
         op_check = 1
 
-
+# Clear Displayer System
 def clear_entry():
     global op_check
     entry.delete(0, tk.END)
     op_check = 1
 
+# Backspace System
 def backspace():
     global op_check
     last_entry = entry.get()
@@ -61,12 +67,14 @@ def backspace():
     op_check = 0
     backspace_op_check()
 
+# Backspace For Fix Operator System
 def backspace_op_check():
     global op_check
     current = entry.get()
     if not current:
         op_check = 1
 
+# Result System For Show To Displayer
 def result():
     current = entry.get()
     try: 
@@ -82,6 +90,7 @@ def result():
     entry.delete(0, tk.END)
     entry.insert(0, res)
 
+# All Button System
 entry = tk.Entry(frame, width=15, font=("Arial", 35), bg="#b1b1b1")
 but_equal = tk.Button(frame, text="=", width=8, height=7, bg="#b1b1b1", font=("Arial",18), command=result)
 but_add = tk.Button(frame, text="+", width=8, height=3, bg="#b1b1b1", font=("Arial",18), command=lambda: input_operator("+"))
@@ -103,5 +112,6 @@ but_7 = tk.Button(frame, text="7", width=8, height=3, bg="#b1b1b1", font=("Arial
 but_8 = tk.Button(frame, text="8", width=8, height=3, bg="#b1b1b1", font=("Arial",18), command=lambda: input_angka(8))
 but_9 = tk.Button(frame, text="9", width=8, height=3, bg="#b1b1b1", font=("Arial",18), command=lambda: input_angka(9))
 
+# Fisrt System Start
 setup_button()
 window.mainloop()
