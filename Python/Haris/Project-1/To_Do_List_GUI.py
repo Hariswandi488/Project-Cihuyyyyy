@@ -6,6 +6,7 @@ from To_Do_List_Notify import notification_Show
 
 InMode = 0
 
+# Other Thread For Music Loop
 def play_BGM():
     BGM_Playing = BGM_Sound.play()
     print("Sound Start")
@@ -17,12 +18,13 @@ def play_BGM():
         
     threading.Thread(target=cek_BGM, daemon=True).start()
     
-
+# TK Init
 window = tk.Tk()
 window.geometry("1280x720")
 window.title("TO-DO LIST")
 pygame.mixer.init()
 
+# Path File
 base_path = os.path.dirname(os.path.abspath(__file__))
 SFX_path = os.path.join(base_path, "SFX")
 
@@ -32,10 +34,11 @@ Start_Sound = pygame.mixer.Sound(os.path.join(SFX_path, "Start2.mp3"))
 BGM_Sound = pygame.mixer.Sound(os.path.join(SFX_path, "BGM.mp3"))
 Bg_Img = Image.open(os.path.join(base_path, "Asset/city.jpg"))
 
-
+# Volume Variable
 volume_var = tk.DoubleVar(value=0.0)
 volume_timer = None
 
+# Path SQL/db File
 root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 Task_file = "Tasks.db"
 Task_Done_file = "Tasks_Done.db"
@@ -46,7 +49,7 @@ conn1 = sqlite3.connect(Task_Done_path)
 cursor = conn.cursor()
 cursor1 = conn1.cursor()
 
-    
+# Setup Tabel 
 def setup_gui():
     global cursor, cursor1, conn, conn1
     cursor.execute("""CREATE TABLE IF NOT EXISTS tasks(
@@ -65,6 +68,7 @@ def setup_gui():
     conn.commit()
     conn1.commit()
 
+# Menu Button Place
 def Menu_default():
     global InMode
     InMode = 100
@@ -86,6 +90,7 @@ def Menu_default():
     button_volume.place(relx=0.1, y=630, anchor="center")
     Sound_volume.place(relx=0.1, y=2000, anchor="center")
 
+# All Button Invisible
 def Invisible_Menu():
     entry.place_forget()
     button_add.place_forget()
@@ -101,6 +106,7 @@ def Invisible_Menu():
     Sound_volume.place_forget()
     button_edit.place_forget()
 
+# Add Task System
 def button_add():
     global InMode
     Invisible_Menu()
@@ -110,6 +116,7 @@ def button_add():
     button_enter.place(relx=0.5, y=300, anchor="center")
     InMode = 1
 
+# View Task System
 def view_task_gui():
     global InMode
     Invisible_Menu()
@@ -125,6 +132,7 @@ def view_task_gui():
         status = "Dalam Pengerjaan" if Inprogress else "Belum Dikerjakan"
         listbox.insert(tk.END, f"{i}. {Task} ({status})")
 
+# Delete Taks System
 def del_task():
     global InMode
     Invisible_Menu()
@@ -139,13 +147,15 @@ def del_task():
     for i, row in enumerate(cursor.fetchall(), start=1):
         listbox.insert(tk.END, row[0])
 
+# Cancel Button System
 def Cancel():
     Invisible_Menu()
     Menu_default()
 
+# Enter Button System
 def enter(event=None):
     global InMode,New_Name,select_edit
-    if InMode == 1:
+    if InMode == 1: # In Add Task System
         Task = entry.get()
         if Task:
             cursor.execute("INSERT INTO tasks (Task, Inprogress) VALUES (?, ?)", (Task, False))
@@ -154,7 +164,7 @@ def enter(event=None):
             Menu_default()
         else:
             messagebox.showwarning("Warning", "Input Tidak Boleh Kosong")
-    elif InMode == 2:
+    elif InMode == 2: # In Delete Task System
         try:
             selected = listbox.get(listbox.curselection())
             cursor.execute("DELETE FROM tasks WHERE Task = ?", (selected,))
@@ -162,7 +172,7 @@ def enter(event=None):
             del_task()
         except:
             messagebox.showinfo("Info", "Pilih Tugas Yang Mau Di Hapus Dulu")
-    elif InMode == 3:
+    elif InMode == 3: # In Progress Task System
         try:
             selected = listbox.get(listbox.curselection())
             cursor.execute("UPDATE tasks SET Inprogress = ? WHERE Task = ?", (True, selected))
@@ -170,7 +180,7 @@ def enter(event=None):
             prog_task()
         except:
             messagebox.showinfo("Info", "Pilih Tugas Yang Mau Di Tandai Dulu")
-    elif InMode == 4:
+    elif InMode == 4: # In Done Task System
         try:
             selected = listbox.get(listbox.curselection())
             cursor.execute("SELECT Task FROM tasks WHERE Task = ?", (selected,))
@@ -183,14 +193,14 @@ def enter(event=None):
             done_tasks()
         except:
             messagebox.showinfo("Info", "Pilih Tugas Yang Mau Di Tandai Dulu")
-    elif InMode == 5:
+    elif InMode == 5: # In Edit Name Task For List System
         try:
             select_edit = listbox.get(listbox.curselection())
             Edit_Task()
         except Exception as e:
             print(e)
             messagebox.showinfo("Info", "Pilih Tugas Yang Mau Di Tandai Dulu")
-    elif InMode == 6:
+    elif InMode == 6: # In Edit Name Task For Rename System
         New_Name = entry.get()
         if New_Name:
             cursor.execute("UPDATE tasks SET Task = ? WHERE Task = ?", (New_Name, select_edit))
@@ -201,7 +211,7 @@ def enter(event=None):
         else:
             messagebox.showwarning("Warning", "Input Tidak Boleh Kosong")
 
-
+# Mark Task In Progress System
 def prog_task():
     global InMode
     InMode = 3
@@ -217,7 +227,7 @@ def prog_task():
     for i, row in enumerate(cursor.fetchall(), start=1):
         listbox.insert(tk.END, row[1])
 
-
+# Mark Task Done System
 def done_tasks():
     global InMode
     InMode = 4
@@ -233,6 +243,7 @@ def done_tasks():
     for i, row in enumerate(cursor.fetchall(), start= 1):
         listbox.insert(tk.END, row[0])
 
+# View Done Task System
 def view_done_task():
     global InMode
     InMode = 0
@@ -249,16 +260,18 @@ def view_done_task():
         status = "Sudah Selesai" if Done else "Belum Selesai(BUG)"
         listbox.insert(tk.END, f"{i}. {Task} ({status})")
 
+# Close Window System
 def Close_window(event=None):
-    if InMode == 100:
+    if InMode == 100: # In Default Menu
         if messagebox.askyesno("Konfirmasi", "Yakin ni Mau Keluar?"):
             conn.close()
             conn1.close()
             window.destroy()
-    else:
+    else: # In Other Menu
         Invisible_Menu()
         Menu_default()
 
+# Volume System
 def set_vol(*args):
     v = float(volume_var.get())
     Click_Sound.set_volume(v)
@@ -267,28 +280,32 @@ def set_vol(*args):
     BGM_Sound.set_volume(v)
     print(v)
 
+# Click System
 def Click(event=None):
     Click_Sound.play()
 
+# Startup System
 def startup():
     Start_Sound.play()
     play_BGM()
     show_notification(Task_path)
 
+# Show Notification System (Logic System In File To_Do-List_Notify.py)
 def show_notification(task_path):
     notification_Show(task_path)
     
-
+# SLider Volume System
 def volume_slider():
     button_volume.place(relx=0.1, y=2000)
     Sound_volume.place(relx=0.1, y=630)
 
-
+# Auto Close Slider System
 def deactive_vol(event=None):
     global volume_timer
     button_volume.place(relx=0.1, y=630)
     Sound_volume.place(relx=0.1, y=2000)
 
+# Edit Name Task System For List System
 def Edit_Task_list():
     global InMode
     InMode = 5
@@ -303,7 +320,8 @@ def Edit_Task_list():
     cursor.execute("SELECT * FROM tasks")
     for i, row in enumerate(cursor.fetchall(), start=1):
         listbox.insert(tk.END, row[1])
-    
+
+# Edit Name Task System For Entry System   
 def Edit_Task():
     global InMode
     Invisible_Menu()
@@ -313,6 +331,7 @@ def Edit_Task():
     button_enter.place(relx=0.5, y=300, anchor="center")
     InMode = 6
 
+# Background System (City Background)
 w = window.winfo_screenwidth()
 h = window.winfo_screenheight()
 Bg_resize = Bg_Img.resize((w, h))
@@ -320,14 +339,18 @@ overlay = Image.new("RGBA", Bg_resize.size, (0, 0, 0, 100))
 bg_witth_overlay = Image.alpha_composite(Bg_resize.convert("RGBA"), overlay)
 bg_tk = ImageTk.PhotoImage(bg_witth_overlay)
 
+# I Forgot This But This For Make Other Frame 
 frame = tk.Frame(window)
 frame.place(x=0, y=0, relwidth=1, relheight=1)
 
+# Display The Background
 bg_label = tk.Label(frame, image=bg_tk).place(x=0, y=0, relwidth=1, relheight=1)
 
+# Timer For Start Startup System 
 window.after(100, startup)
 set_vol()
 
+# All Button System
 Label_title = tk.Label(frame, text="Menu Tugas", font=("Arial", 25),bg="gray")
 entry = tk.Entry(frame, width=60, font=("Arial", 20), bg="gray")
 button_add = tk.Button(frame, text="Tambah Tugas", bg="gray", command=button_add, font=("Arial", 20), width=20, height=3)
@@ -344,6 +367,7 @@ Sound_volume = tk.Scale(frame, from_=0.0, to=1.0 , orient="horizontal", variable
 button_volume = tk.Button(frame, text="\U0001F50A", command=volume_slider, bg="gray", font=("Arial", 15))
 button_edit = tk.Button(frame, text="Edit Nama Tugas", width=20, height=3, font=("Arial", 20), command= Edit_Task_list, bg="gray")
 
+# Other Config For Keyboard Or Other
 window.bind("<Escape>", Close_window)
 window.bind("<Return>", enter)
 window.bind("<ButtonPress-1>", Click)
@@ -351,6 +375,7 @@ Sound_volume.bind("<ButtonRelease-1>", deactive_vol)
 
 window.protocol("WM_DELETE_WINDOW", Close_window)
 
+# First System Will Start 
 setup_gui()
 Menu_default()
 window.mainloop()
