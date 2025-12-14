@@ -1,11 +1,5 @@
-angka = 10.5
-res = angka % 2
+import tkinter as tk
 
-if res == 5:
-    print(f"{res}\n5")
-elif res == 2:
-    print(f"{res}\n2")
-elif res == 0 :
-    print(f"{res}\n0")
+window = tk.Tk()
+window.geometry("640x800")
 
-print(res)
