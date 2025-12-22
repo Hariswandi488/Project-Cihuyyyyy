@@ -1,5 +1,5 @@
 import tkinter as tk
-import os, random
+import os, random, time, threading
 from PIL import Image, ImageTk
 
 kesempatan = 0
@@ -34,45 +34,63 @@ def setup_button_diff():
     button_insane.place(relx=0.5, rely=0.75, anchor="center")
     button_imposible.place(relx=0.5, rely=0.9, anchor="center")
 
-def invisible_button_diff():
+def invisible_button():
     button_easy.place_forget()
     button_normal.place_forget()
     button_hard.place_forget()
     button_insane.place_forget()
     button_imposible.place_forget()
+    kesempatan_label.place_forget()
+    entry.place_forget()
+    button_0.place_forget()
+    button_1.place_forget()
+    button_2.place_forget()
+    button_3.place_forget()
+    button_4.place_forget()
+    button_5.place_forget()
+    button_6.place_forget()
+    button_7.place_forget()
+    button_8.place_forget()
+    button_9.place_forget()
+    button_guess.place_forget()
+    button_clear.place_forget()
 
 def settings_diff(diff):
     global kesempatan, angka_akhir, secret_num
-    invisible_button_diff()
+    invisible_button()
     if diff == "easy":
         kesempatan = 5
         angka_akhir = 10
     elif diff == "normal":
         kesempatan = 10
-        angka_akhir = 25
+        angka_akhir = 50
     elif diff == "hard":
         kesempatan = 15
-        angka_akhir = 50
+        angka_akhir = 250
     elif diff == "insane":
         kesempatan = 25
-        angka_akhir = 100
+        angka_akhir = 1000
     elif diff == "imposible":
         kesempatan = 50
-        angka_akhir = 1000
+        angka_akhir = 10000
 
 
     teks = f"!!INFORMASI GAME!!\n\nkamu akan di suruh menebak angka Random\n\nkamu memilih diff {diff}\njadi angka akan di acak dari 1 - {angka_akhir}\nkamu juga di beri \nkesempatan menebak sebanyak {kesempatan}\n\ntekan tombol Lanjutkan\nuntuk memulai game tebak angka nya"
 
     button_next.place(relx=0.5, rely=0.85, anchor="center")
-    text.place(relx=0.5, rely=0.5, anchor="center")
+    text.place(relx=0.5, rely=0.4, anchor="center")
     text.config(text=teks)
     secret_num = random.randint(1, angka_akhir)
 
 
 def setup_button_game():
+    global kesempatan_teks
     button_next.place_forget()
     text.config(text="Tebak Angka Random")
     entry.place(relx=0.5, rely=0.2, anchor="center")
+    kesempatan_label.config(text=f"Kesempatan : {kesempatan}")
+    kesempatan_label.place(relx=0.5, rely=0.25, anchor="center")
+    button_0.place(relx=0.5, rely=0.85, anchor="center")
     button_1.place(relx=0.25, rely=0.4, anchor="center")
     button_2.place(relx=0.5, rely=0.4, anchor="center")
     button_3.place(relx=0.75, rely=0.4, anchor="center")
@@ -82,7 +100,7 @@ def setup_button_game():
     button_7.place(relx=0.25, rely=0.7, anchor="center")
     button_8.place(relx=0.5, rely=0.7, anchor="center")
     button_9.place(relx=0.75, rely=0.7, anchor="center")
-    button_guess.place(relx=0.625, rely=0.85, anchor="center")
+    button_guess.place(relx=0.75, rely=0.85, anchor="center")
     button_clear.place(relx=0.25, rely=0.85, anchor="center")
     text.place(relx=0.5, rely=0.1, anchor="center")
 
@@ -95,14 +113,39 @@ def entry_clear():
     entry.delete(0, tk.END)
 
 def guess():
-    current = entry.get()
-    if current == secret_num:
-        pass
-    elif current <= secret_num:
-        pass
-    elif current >= secret_num:
-        pass
+    global kesempatan, secret_num, kesempatan_teks
+    current = int(entry.get())
+    entry.delete(0, tk.END)
+    def check_guess():
+        global kesempatan_teks , kesempatan, secret_num
+        if current == secret_num:
+            invisible_button()
+            text.place(relx=0.5, rely=0.4, anchor="center")
+            text.config(text="Selamat Kamu Berhasil Menebak\nAngka Random Yang Benar")
+            time.sleep(3.0)
+            setup_button_diff()
+        if kesempatan > 0:
+            kesempatan -= 1
+            if kesempatan < 1 :
+                invisible_button()
+                text.place(relx=0.5, rely=0.4, anchor="center")
+                text.config(text="KESEMPATAN KAMU HABIS\nSILAHKAN MULAI DARI AWAL")
+                time.sleep(3.5)
+                setup_button_diff()
+            
+            kesempatan_label.config(text=f"Kesempatan : {kesempatan}")
 
+            if current <= secret_num:
+                text.config(text="Angka Tebakan Mu Terlalu Kecil\nMungkin Angka Random nya Lebih Besar")
+                time.sleep(1)
+                text.config(text="Tebak Angka Random")
+            elif current >= secret_num:
+                text.config(text="Angka Tebakan Mu Terlalu Besar\nMungkin Angka Random nya Lebih Kecil")
+                time.sleep(1)
+                text.config(text="Tebak Angka Random")
+
+        
+    threading.Thread(target=check_guess, daemon=True).start()
 
 
 
@@ -113,6 +156,14 @@ button_hard = tk.Button(frame, font=("Arial", 20), text="Hard", width=15, height
 button_insane = tk.Button(frame, font=("Arial", 20), text="Insane", width=15, height=2,command=lambda:settings_diff("insane"))
 button_imposible = tk.Button(frame, font=("Arial", 20), text="Imposible", width=15, height=2,command=lambda:settings_diff("imposible"))
 button_next = tk.Button(frame, font=("Arial", 20), text="Lanjutkan", width=15, height=2, command=setup_button_game)
+button_0 = tk.Button(
+    frame,
+    font=("Arial", 20),
+    text="0",
+    width=6,
+    height=2,
+    command=lambda:entry_number(0)
+)
 button_1 = tk.Button(
     frame,
     font=("Arial", 20),
@@ -189,9 +240,9 @@ button_guess = tk.Button(
     frame,
     font=("Arial", 20),
     text="Tebak",
-    width=13,
+    width=6,
     height=2,
-    command=entry_number("guess")
+    command=guess
 )
 button_clear = tk.Button(
     frame,
@@ -202,6 +253,7 @@ button_clear = tk.Button(
     command=entry_clear
 )
 text= tk.Label(frame, font=("Arial",15), text="Tebak Angka Random")
+kesempatan_label = tk.Label(frame, font=("Arial", 15), text="kesempatan")
 
 
 setup_button_diff()
