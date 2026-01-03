@@ -54,12 +54,6 @@ def random_name():
     else:
         random_name()
 
-def first_name_create():
-    cursor.execute("SELECT name FROM list_name WHERE name = ?" ("a",))
-    exist = cursor.fetchone()
-    if not exist:
-        cursor.execute("INSERT INTO list_name (name) VALUES (?)", ("a"))
-        conn.commit()
 
 def view_name():
     invisible()
