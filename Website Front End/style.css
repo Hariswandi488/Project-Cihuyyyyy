@@ -1,0 +1,51 @@
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background-color: #4444446b;
+    box-shadow: 0 0 15px #00ffff46;
+    border-radius: 20px 20px 20px 20px;
+}
+
+.left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-radius: 10px 10px 10px 10px;
+    padding: 0px 20px;
+
+}
+
+.logo {
+    width: 50px;
+}
+
+.menu {
+    display: flex;
+    margin-left: 15px;
+    padding: 0% 75% 0% 0%;
+}
+
+.menu a {
+    color: aquamarine;
+    text-decoration: none;
+    margin-left: 30px;
+    font-weight: bold;
+    padding-left: 10px;
+}
+
+.menu a:hover {
+    color: cyan;
+    text-shadow: 0 0 5px cyan;
+}
+
+.left h1 {
+    color: white;
+    font-size: 28px;
+    text-shadow: 0 0 8px cyan;
+}
+
+body {
+    background-color: #fbfaf5;
+}

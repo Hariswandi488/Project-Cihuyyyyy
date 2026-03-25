@@ -1,0 +1,1 @@
+print("saya akan kembali ke kudus dan kembali menjadi streamer biasa")

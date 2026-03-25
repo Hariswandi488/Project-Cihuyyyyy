@@ -1,0 +1,121 @@
+#global-loader {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        #1a1a1f,
+        #121216,
+        #0d0d10
+    );
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+
+#global-loader::after {
+    content: "";
+    width: 120px;
+    height: 120px;
+    border: 15px solid #eee;
+    border-top: 15px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: white;
+    padding: 10px 20px;
+
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    box-shadow:
+    0 0 40px rgba(0, 150, 255, 0.15),
+    inset 0 0 20px rgba(255, 255, 255, 0.05);
+
+    overflow: hidden;
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    
+}
+
+header::before {
+    content: "";
+    position: absolute;
+    inset: 0%;
+    border-radius: 16px;
+    background: linear-gradient(
+        120deg,
+        rgba(255, 255, 255, 0.25),
+        transparent 40%
+        
+    );
+    opacity: 0.4;
+    pointer-events: none;
+    /*animation: shine 6s linear infinite;*/
+}
+
+/*@keyframes pulseGlow {
+    0% { box-shadow: 0 0 10px rgba(0, 255, 200, 0.15); }
+    100% { box-shadow: 0 0 35px rgba(0, 255, 200, 0.45);}
+}
+
+@keyframes shine {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+*/
+
+.ltitle {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 0px 20px;
+}
+
+.ltitle h1 {
+    font-size: 22px;
+    text-shadow: 0 0 10px rgba(0, 255, 200, 0.5);
+}
+
+.navhead {
+    display: flex;
+    margin: 0% 75% 0% 0%;
+    margin-left: 15px;
+    text-shadow: 0 0 10px rgba(0, 255, 200, 0.5);
+}
+
+.navhead a {
+    text-decoration: none;
+    font-weight: bold;
+    margin-left: 15px;
+    padding-left: 10px;
+    color:greenyellow
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    color: #eaeaea;
+    background: linear-gradient(
+        180deg,
+        #1a1a1f,
+        #121216,
+        #0d0d10
+    );
+    min-height: 100vh;
+}
