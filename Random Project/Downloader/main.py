@@ -5,8 +5,9 @@ import downloader
 
 # ===== Initial Var =====
 # ----- Path Var ----
-Parent_file = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+Parent_file = os.path.abspath(r"D:\VSCode Folder")
 Output_file = os.path.join(Parent_file, "Output_Downloader")
+print(Parent_file, Output_file)
 ffmpeg_path = os.path.join(os.path.dirname(__file__), "ffmpeg.exe")
 
 # ===== Get Formats Url =====
@@ -24,7 +25,10 @@ def list_option(title, option):
 
 # ===== Open Folder =====
 def open_folder(file_path):
-    subprocess.run(["explorer", "/select", file_path])
+    if os.path.exists(f"{file_path}"):
+        subprocess.run(['explorer', '/select,', file_path])
+    else:
+        print("Path Not Exist")
 
 # ===== Main Logic CLI =====
 def main():
@@ -102,11 +106,12 @@ Audio Ext : {Audio_Ext}
 
     v_filter, a_filter = downloader.build_format(vext=Video_Ext, aext=Audio_Ext, res=Video_Resolution, vcodec=Video_Codec, acodec=Audio_Codec, vbr=Video_Bitrate, abr=Audio_Bitrate)
 
-    Video_Format = f"bestvideo{v_filter}/bestvideo"
-    Audio_Format = f"bestaudio{a_filter}/bestaudio"
+    Video_Format = f"bestvideo{v_filter}"
+    Audio_Format = f"bestaudio{a_filter}"
+    print(f"{Video_Format}+{Audio_Format}")
 
     Video_opts = {
-        "format" : Video_Format,
+        "format" : f"{Video_Format}/bestvideo",
         "progress_hooks" : [downloader.progress_hook],
         "quiet" : True,
         "no_warnings" : True,
@@ -115,7 +120,7 @@ Audio Ext : {Audio_Ext}
     }
 
     Audio_opts = {
-        "format" : Audio_Format,
+        "format" : f"{Audio_Format}/bestaudio",
         "progress_hooks" : [downloader.progress_hook],
         "quiet" : True,
         "no_warnings" : True,
@@ -124,7 +129,7 @@ Audio Ext : {Audio_Ext}
     }
 
     Merge_opts = {
-        "format" : f"{Video_Format}+{Audio_Format}",
+        "format" : f"{Video_Format}+{Audio_Format}/best",
         "merge_output_format" : "mp4",
         "progress_hooks" : [downloader.progress_hook],
         "quiet" : True,
@@ -137,21 +142,21 @@ Audio Ext : {Audio_Ext}
     load.stop_loading()
 
     if mode == "1":
-        downloader.download(url, Video_opts)
-        downloader.download(url, Audio_opts)
-        open_folder(Output_Video_File)
+        file_path_v = downloader.download(url, Video_opts)
+        file_path_a = downloader.download(url, Audio_opts)
+        open_folder(file_path_v)
 
     elif mode == "2":
-        downloader.download(url, Merge_opts)
-        open_folder(Output_Merge_File)
+        file_path = downloader.download(url, Merge_opts)
+        open_folder(file_path)
 
     elif mode == "3":
-        downloader.download(url, Audio_opts)
-        open_folder(Output_Audio_File)
+        file_path = downloader.download(url, Audio_opts)
+        open_folder(file_path)
 
     elif mode == "4":
-        downloader.download(url, Video_opts)
-        open_folder(Output_Video_File)
+        file_path = downloader.download(url, Video_opts)
+        open_folder(file_path)
 
     else:
         print("Mode Gak Jelas, Ganti Mode Yang Tepat")
