@@ -2,13 +2,14 @@ import yt_dlp, os, time, re, subprocess
 import mapping_data as map_data
 import loader as load
 import downloader
+import converter
 
 # ===== Initial Var =====
 # ----- Path Var ----
-Parent_file = os.path.abspath(r"D:\VSCode Folder")
-Output_file = os.path.join(Parent_file, "Output_Downloader")
-print(Parent_file, Output_file)
-ffmpeg_path = os.path.join(os.path.dirname(__file__), "ffmpeg.exe")
+base_path = os.path.dirname(os.path.abspath(__file__))
+Output_file = os.path.join(base_path, "Output_Downloader")
+print(base_path, Output_file)
+ffmpeg_path = os.path.join(base_path, "ffmpeg/ffmpeg.exe")
 
 # ===== Get Formats Url =====
 def get_info(url):
@@ -98,9 +99,9 @@ Audio Ext : {Audio_Ext}
     
     safe_title = re.sub(r'[\\/*?:"<>|]', "", title)
     Folder_Name = f"{Output_file}/{safe_title}"
-    Output_Video_File = f"{Folder_Name}/Video {Video_Resolution}p {safe_title}.%(ext)s"
-    Output_Audio_File = f"{Folder_Name}/Audio {safe_title}.%(ext)s"
-    Output_Merge_File = f"{Folder_Name}/{safe_title}.%(ext)s"
+    Output_Video_File = f"{Folder_Name}/Video {Video_Resolution}p.%(ext)s"
+    Output_Audio_File = f"{Folder_Name}/Audio.%(ext)s"
+    Output_Merge_File = f"{Folder_Name}/Video {Video_Resolution}p + Audio.%(ext)s"
 
     os.makedirs(Folder_Name, exist_ok=True)
 
@@ -111,11 +112,12 @@ Audio Ext : {Audio_Ext}
     print(f"{Video_Format}+{Audio_Format}")
 
     Video_opts = {
-        "format" : f"{Video_Format}/bestvideo",
+        "format" : f"{Video_Format}/bestvideo[height<={Video_Resolution}]",
         "progress_hooks" : [downloader.progress_hook],
         "quiet" : True,
         "no_warnings" : True,
         "ffmpeg_location" : ffmpeg_path,
+        "restrictfilenames" : True,
         "outtmpl" : Output_Video_File
     }
 
@@ -125,25 +127,26 @@ Audio Ext : {Audio_Ext}
         "quiet" : True,
         "no_warnings" : True,
         "ffmpeg_location" : ffmpeg_path,
+        "restrictfilenames" : True,
         "outtmpl" : Output_Audio_File
     }
 
     Merge_opts = {
-        "format" : f"{Video_Format}+{Audio_Format}/best",
+        "format" : f"{Video_Format}+{Audio_Format}/bestvideo[height<={Video_Resolution}]+bestaudio",
         "merge_output_format" : "mp4",
         "progress_hooks" : [downloader.progress_hook],
         "quiet" : True,
         "no_warnings" : True,
         "ffmpeg_location" : ffmpeg_path,
+        "restrictfilenames" : True,
         "outtmpl" : Output_Merge_File
     }
 
-    time.sleep(0.5)
     load.stop_loading()
 
     if mode == "1":
         file_path_v = downloader.download(url, Video_opts)
-        file_path_a = downloader.download(url, Audio_opts)
+        downloader.download(url, Audio_opts)
         open_folder(file_path_v)
 
     elif mode == "2":
@@ -165,6 +168,9 @@ Audio Ext : {Audio_Ext}
     load.stop_loading()
     load.Stop_Timer()
     print(f"\n\nDone in {int(load.Total_Time)}s")
+
+    info_media = converter.get_media_data(file_path)
+    print(info_media)
 
 
 main()

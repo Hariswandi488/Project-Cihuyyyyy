@@ -209,5 +209,5 @@ __marimo__/
 # VsCode 
 .vscode
 
-Random Project/Downloader/ffmpeg.exe
-Random Project/Downloader/ffprobe.exe
+Random_Project/Downloader/ffmpeg/
+Random_Project/Downloader/Output_Downloader
