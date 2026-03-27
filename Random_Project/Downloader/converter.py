@@ -15,8 +15,15 @@ def convert_media(
 ):
     cmd = [ffmpeg_path, "-i", input_file]
 
-    cmd += ["-c:v", check_codec(media_data["vcodec_ok"], vcodec)]
-    cmd += ["-c:a", check_codec(media_data["acodec_ok"], acodec)]
+    if vcodec and acodec:
+        cmd += ["-c:v", check_codec(media_data["vcodec_ok"], vcodec)]
+        cmd += ["-c:a", check_codec(media_data["acodec_ok"], acodec)]
+    elif vcodec and not acodec:
+        cmd += ["-c:v", check_codec(media_data["vcodec_ok"], vcodec)]
+    elif acodec and not vcodec:
+        cmd += ["-c:a", check_codec(media_data["acodec_ok"], acodec)]
+        
+
 
     if not media_data["a_bitrate_ok"] and bitrate:
         cmd += ["-b:a", bitrate]
@@ -44,10 +51,16 @@ def get_media_data(input_file):
         input_file
     ]
 
-    result = subprocess.run(cmd, capture_output=True, text=True)
+    result = subprocess.run(cmd,
+                            capture_output=True,
+                            text=True,
+                            encoding="utf-8",
+                            errors="replace"
+)
 
     if not result.stdout:
-        raise Exception("ffprbe output empty")
+        raise Exception("ffprobe output empty")
+    
     return json.loads(result.stdout)
 
 def is_valid(info, targets):
@@ -59,29 +72,34 @@ def is_valid(info, targets):
         "crf_ok" : False,
         "a_bitrate_ok" : False
     }
+
+    is_data_valid = True
+    streams = info.get("streams", [])
     
-    video_stream = None
-    audio_stream = None
-    for stream in info.get("streams", []):
-        if stream.get("codec_type") == "video" and not video_stream:
-            video_stream = stream
-        elif stream.get("codec_type") == "audio" and not audio_stream:
-            audio_stream = stream
+    video_stream = next((s for s in streams if s.get("codec_type") == "video"), None)
+    audio_stream = next((s for s in streams if s.get("codec_type") == "audio"), None)
 
-        if video_stream:
-            if video_stream.get("codec_name") == targets["vcodec"]:
-                media_data["vcodec_ok"] = True
+    if video_stream:
+        if targets["vcodec"] and video_stream.get("codec_name") == targets["vcodec"]:
+            media_data["vcodec_ok"] = True
 
-            width = video_stream.get("width")
-            height = video_stream.get("height")
+        width = video_stream.get("width")
+        height = video_stream.get("height")
+
+        if width and height:
             aspect_ratio = width / height
-            target_width = calc_resolution(aspect_ratio, height)
 
-            if height == targets["resolution"] and width == target_width:
-                media_data["resolustion_ok"] = True
-        if audio_stream:
-            if audio_stream.get("codec_name") == targets["acodec"]:
-                media_data["acodec_ok"] = True
+            target_height = targets["resolution"]
+            target_width = calc_resolution(aspect_ratio, target_height)
+
+        if height == targets["resolution"] and width == target_width:
+            media_data["resolution_ok"] = True
+
+    if audio_stream:
+        if  targets["acodec"] and audio_stream.get("codec_name") == targets["acodec"]:
+            media_data["acodec_ok"] = True
+
+        if targets["a_bitrate"]:
             if int(audio_stream.get("bit_rate", 0)) == int(targets["a_bitrate"]):
                 media_data["a_bitrate_ok"] = True
     
@@ -92,10 +110,15 @@ def is_valid(info, targets):
     filename = os.path.basename(full_path_target)
     _, ext = os.path.splitext(filename)
 
-    if ext == targets["out_ext"]:
+    if targets["out_ext"] and ext == targets["out_ext"]:
         media_data["out_ext_ok"] = True
+    
+    for media,is_ok in media_data.items():
+        print(f"{media} : {is_ok}")
+        if is_ok == False:
+            is_data_valid = False
 
-    return media_data
+    return media_data, is_data_valid
 
 def check_codec(is_ok, data):
     if not is_ok and data:

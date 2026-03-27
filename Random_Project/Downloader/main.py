@@ -31,6 +31,13 @@ def open_folder(file_path):
     else:
         print("Path Not Exist")
 
+def ask_convert(text):
+    ask = input(f"Output File {text} Not Valid\nWant Convert? (y/n):")
+    if ask.lower() == "y":
+        return True
+    else:
+        return False
+
 # ===== Main Logic CLI =====
 def main():
     url = input("Masukan Url : ")
@@ -146,19 +153,29 @@ Audio Ext : {Audio_Ext}
 
     if mode == "1":
         file_path_v = downloader.download(url, Video_opts)
-        downloader.download(url, Audio_opts)
+        file_path_a = downloader.download(url, Audio_opts)
+        a_ext_target = Audio_Ext
+        v_ext_target = Video_Ext
         open_folder(file_path_v)
 
     elif mode == "2":
         file_path = downloader.download(url, Merge_opts)
+        file_type = "Audio + Video"
+        ext_target = Video_Ext
         open_folder(file_path)
 
     elif mode == "3":
         file_path = downloader.download(url, Audio_opts)
+        file_type = "Audio"
+        Video_Codec = None
+        ext_target = Audio_Ext
         open_folder(file_path)
 
     elif mode == "4":
         file_path = downloader.download(url, Video_opts)
+        file_type = "Video"
+        Audio_Codec = None
+        ext_target = Video_Ext
         open_folder(file_path)
 
     else:
@@ -168,10 +185,45 @@ Audio Ext : {Audio_Ext}
     load.stop_loading()
     load.Stop_Timer()
     print(f"\n\nDone in {int(load.Total_Time)}s")
+    
+    load.start_loading("Validation", 0.2)
+    target_acodec = map_data.audio_codec_option[ac][2]
+    target_vcodec = map_data.video_codec_option[vc][2]
+    if mode == "1":
+        info_media_a = converter.get_media_data(file_path_a)
+        info_media_v = converter.get_media_data(file_path_v)
 
-    info_media = converter.get_media_data(file_path)
-    print(info_media)
-    # NEXT : Fix Problem From Converter.py
+        a_target = converter.setup_target(acodec=target_acodec, vcodec=target_vcodec, out_ext=a_ext_target, resolution=Video_Resolution, a_bitrate=Audio_Bitrate)
+        v_target = converter.setup_target(acodec=target_acodec, vcodec=target_vcodec, out_ext=v_ext_target, resolution=Video_Resolution, a_bitrate=Audio_Bitrate)
 
+        media_data_a, is_a_valid = converter.is_valid(info_media_a, a_target)
+        media_data_v, is_v_valid = converter.is_valid(info_media_v, v_target)
+        load.stop_loading()
+        if not is_a_valid and not is_v_valid:
+            convert = ask_convert("Audio + Video")
+            if convert:
+                converter.convert_media(input_file=file_path_a, output_ext=a_ext_target, media_data=media_data_a, acodec=Audio_Codec)
+                converter.convert_media(input_file=file_path_v, output_ext=v_ext_target, media_data=media_data_v, vcodec=Video_Codec)
+        
+        elif is_a_valid and not is_v_valid:
+            convert = ask_convert("Video")
+            if convert:
+                converter.convert_media(input_file=file_path_a, output_ext=v_ext_target, media_data=media_data_v, vcodec=Video_Codec)
+        elif is_v_valid and not is_a_valid:
+            convert = ask_convert("Audio")
+            if convert:
+                converter.convert_media(input_file=file_path_a, output_ext=a_ext_target, media_data=media_data_a, acodec=Audio_Codec)
+    else:
+        info_media = converter.get_media_data(file_path)
+        target = converter.setup_target(acodec=target_acodec, vcodec=target_vcodec, out_ext=ext_target, resolution=Video_Resolution, a_bitrate=Audio_Bitrate)
+        media_data, is_valid = converter.is_valid(info_media, target)
 
+        if not is_valid:
+            convert = ask_convert(file_type)
+            if convert:
+                converter.convert_media(input_file=file_path, output_ext=ext_target, media_data=media_data, acodec=Audio_Codec, vcodec=Video_Codec)
+
+    print("Convert Done")
+                
+    
 main()

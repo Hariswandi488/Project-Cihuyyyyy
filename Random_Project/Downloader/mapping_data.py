@@ -30,7 +30,7 @@ video_codec_option = {
     "4" : ("VP9", "libvpx-vp9", "vp9"),
     "5" : ("MPEG-4 Part 2", "mpeg4", "mpeg4"),
     "6" : ("AV1", "libaom-av1", "av1"),
-    "7" : ("Best/Recomended", None)
+    "7" : ("Best/Recomended", None, None)
 }
 
 audio_codec_option = {
@@ -41,7 +41,7 @@ audio_codec_option = {
     "4" : ("Vorbis", "libvorbis", "vorbis"),
     "5" : ("WAV", "pcm_s16le", "pcm_s16le"),
     "6" : ("AC3", "ac3", "ac3"),
-    "7" : ("Best/Recomended", None)
+    "7" : ("Best/Recomended", None, None)
 }
 
 audio_container_option = {
