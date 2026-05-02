@@ -2,12 +2,14 @@ import yt_dlp, os, time, re, subprocess
 import mapping_data as map_data
 import loader as load
 import downloader
+import converter
 
 # ===== Initial Var =====
 # ----- Path Var ----
-Parent_file = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-Output_file = os.path.join(Parent_file, "Output_Downloader")
-ffmpeg_path = os.path.join(os.path.dirname(__file__), "ffmpeg.exe")
+base_path = os.path.dirname(os.path.abspath(__file__))
+Output_file = os.path.join(base_path, "Output_Downloader")
+print(base_path, Output_file)
+ffmpeg_path = os.path.join(base_path, "ffmpeg/ffmpeg.exe")
 
 # ===== Get Formats Url =====
 def get_info(url):
@@ -24,7 +26,17 @@ def list_option(title, option):
 
 # ===== Open Folder =====
 def open_folder(file_path):
-    subprocess.run(["explorer", "/select", file_path])
+    if os.path.exists(f"{file_path}"):
+        subprocess.run(['explorer', '/select,', file_path])
+    else:
+        print("Path Not Exist")
+
+def ask_convert(text):
+    ask = input(f"Output File {text} Not Valid\nWant Convert? (y/n):")
+    if ask.lower() == "y":
+        return True
+    else:
+        return False
 
 # ===== Main Logic CLI =====
 def main():
@@ -94,64 +106,77 @@ Audio Ext : {Audio_Ext}
     
     safe_title = re.sub(r'[\\/*?:"<>|]', "", title)
     Folder_Name = f"{Output_file}/{safe_title}"
-    Output_Video_File = f"{Folder_Name}/Video {Video_Resolution}p {safe_title}.%(ext)s"
-    Output_Audio_File = f"{Folder_Name}/Audio {safe_title}.%(ext)s"
-    Output_Merge_File = f"{Folder_Name}/{safe_title}.%(ext)s"
+    Output_Video_File = f"{Folder_Name}/Video {Video_Resolution}p.%(ext)s"
+    Output_Audio_File = f"{Folder_Name}/Audio.%(ext)s"
+    Output_Merge_File = f"{Folder_Name}/Video {Video_Resolution}p + Audio.%(ext)s"
 
     os.makedirs(Folder_Name, exist_ok=True)
 
     v_filter, a_filter = downloader.build_format(vext=Video_Ext, aext=Audio_Ext, res=Video_Resolution, vcodec=Video_Codec, acodec=Audio_Codec, vbr=Video_Bitrate, abr=Audio_Bitrate)
 
-    Video_Format = f"bestvideo{v_filter}/bestvideo"
-    Audio_Format = f"bestaudio{a_filter}/bestaudio"
+    Video_Format = f"bestvideo{v_filter}"
+    Audio_Format = f"bestaudio{a_filter}"
+    print(f"{Video_Format}+{Audio_Format}")
 
     Video_opts = {
-        "format" : Video_Format,
+        "format" : f"{Video_Format}/bestvideo[height<={Video_Resolution}]",
         "progress_hooks" : [downloader.progress_hook],
         "quiet" : True,
         "no_warnings" : True,
         "ffmpeg_location" : ffmpeg_path,
+        "restrictfilenames" : True,
         "outtmpl" : Output_Video_File
     }
 
     Audio_opts = {
-        "format" : Audio_Format,
+        "format" : f"{Audio_Format}/bestaudio",
         "progress_hooks" : [downloader.progress_hook],
         "quiet" : True,
         "no_warnings" : True,
         "ffmpeg_location" : ffmpeg_path,
+        "restrictfilenames" : True,
         "outtmpl" : Output_Audio_File
     }
 
     Merge_opts = {
-        "format" : f"{Video_Format}+{Audio_Format}",
+        "format" : f"{Video_Format}+{Audio_Format}/bestvideo[height<={Video_Resolution}]+bestaudio",
         "merge_output_format" : "mp4",
         "progress_hooks" : [downloader.progress_hook],
         "quiet" : True,
         "no_warnings" : True,
         "ffmpeg_location" : ffmpeg_path,
+        "restrictfilenames" : True,
         "outtmpl" : Output_Merge_File
     }
 
-    time.sleep(0.5)
     load.stop_loading()
 
     if mode == "1":
-        downloader.download(url, Video_opts)
-        downloader.download(url, Audio_opts)
-        open_folder(Output_Video_File)
+        file_path_v = downloader.download(url, Video_opts)
+        file_path_a = downloader.download(url, Audio_opts)
+        a_ext_target = Audio_Ext
+        v_ext_target = Video_Ext
+        open_folder(file_path_v)
 
     elif mode == "2":
-        downloader.download(url, Merge_opts)
-        open_folder(Output_Merge_File)
+        file_path = downloader.download(url, Merge_opts)
+        file_type = "Audio + Video"
+        ext_target = Video_Ext
+        open_folder(file_path)
 
     elif mode == "3":
-        downloader.download(url, Audio_opts)
-        open_folder(Output_Audio_File)
+        file_path = downloader.download(url, Audio_opts)
+        file_type = "Audio"
+        Video_Codec = None
+        ext_target = Audio_Ext
+        open_folder(file_path)
 
     elif mode == "4":
-        downloader.download(url, Video_opts)
-        open_folder(Output_Video_File)
+        file_path = downloader.download(url, Video_opts)
+        file_type = "Video"
+        Audio_Codec = None
+        ext_target = Video_Ext
+        open_folder(file_path)
 
     else:
         print("Mode Gak Jelas, Ganti Mode Yang Tepat")
@@ -160,6 +185,45 @@ Audio Ext : {Audio_Ext}
     load.stop_loading()
     load.Stop_Timer()
     print(f"\n\nDone in {int(load.Total_Time)}s")
+    
+    load.start_loading("Validation", 0.2)
+    target_acodec = map_data.audio_codec_option[ac][2]
+    target_vcodec = map_data.video_codec_option[vc][2]
+    if mode == "1":
+        info_media_a = converter.get_media_data(file_path_a)
+        info_media_v = converter.get_media_data(file_path_v)
 
+        a_target = converter.setup_target(acodec=target_acodec, vcodec=target_vcodec, out_ext=a_ext_target, resolution=Video_Resolution, a_bitrate=Audio_Bitrate)
+        v_target = converter.setup_target(acodec=target_acodec, vcodec=target_vcodec, out_ext=v_ext_target, resolution=Video_Resolution, a_bitrate=Audio_Bitrate)
 
+        media_data_a, is_a_valid = converter.is_valid(info_media_a, a_target)
+        media_data_v, is_v_valid = converter.is_valid(info_media_v, v_target)
+        load.stop_loading()
+        if not is_a_valid and not is_v_valid:
+            convert = ask_convert("Audio + Video")
+            if convert:
+                converter.convert_media(input_file=file_path_a, output_ext=a_ext_target, media_data=media_data_a, acodec=Audio_Codec)
+                converter.convert_media(input_file=file_path_v, output_ext=v_ext_target, media_data=media_data_v, vcodec=Video_Codec)
+        
+        elif is_a_valid and not is_v_valid:
+            convert = ask_convert("Video")
+            if convert:
+                converter.convert_media(input_file=file_path_a, output_ext=v_ext_target, media_data=media_data_v, vcodec=Video_Codec)
+        elif is_v_valid and not is_a_valid:
+            convert = ask_convert("Audio")
+            if convert:
+                converter.convert_media(input_file=file_path_a, output_ext=a_ext_target, media_data=media_data_a, acodec=Audio_Codec)
+    else:
+        info_media = converter.get_media_data(file_path)
+        target = converter.setup_target(acodec=target_acodec, vcodec=target_vcodec, out_ext=ext_target, resolution=Video_Resolution, a_bitrate=Audio_Bitrate)
+        media_data, is_valid = converter.is_valid(info_media, target)
+
+        if not is_valid:
+            convert = ask_convert(file_type)
+            if convert:
+                converter.convert_media(input_file=file_path, output_ext=ext_target, media_data=media_data, acodec=Audio_Codec, vcodec=Video_Codec)
+
+    print("Convert Done")
+                
+    
 main()

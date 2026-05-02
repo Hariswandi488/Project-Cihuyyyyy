@@ -4,7 +4,9 @@ import loader as load
 # ===== Download Logic =====
 def download(url, ydl_opts):
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download(url)
+        info = ydl.extract_info(url, download=True)
+        file_path = ydl.prepare_filename(info)
+        return file_path
 
 # ===== List Download =====
 def format_list(formats):
@@ -55,17 +57,17 @@ def build_format(vext=None, aext=None, res=None, vcodec=None, acodec=None, vbr=N
     if vcodec:
         v_filter.append(f"[vcodec*={vcodec}]")
     if vbr:
-        v_filter.append(f"[tbr<={vbr}]")
+        v_filter.append(f"[vbr<={vbr}]")
     
     # ----- append audio filter -----
+    if aext:
+        a_filter.append(f"[ext={aext}]")
     if acodec:
         a_filter.append(f"[acodec*={acodec}]")
     if abr:
         a_filter.append(f"[abr<={abr}]")
-    if aext:
-        a_filter.append(f"[ext={aext}]")
 
-    v_str = f"[{''.join(v_filter)}]" if v_filter else ""
-    a_str = f"[{''.join(a_filter)}]" if a_filter else ""
+    v_str = f"{"".join(v_filter)}" if v_filter else ""
+    a_str = f"{"".join(a_filter)}" if a_filter else ""
 
     return v_str, a_str

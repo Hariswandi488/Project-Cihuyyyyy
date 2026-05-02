@@ -23,23 +23,25 @@ video_container_option = {
 }
 
 video_codec_option = {
-    "1" : ("H.264", "libx264"),
-    "2" : ("H.265", "libx265"),
-    "3" : ("Xvid", "libxvid"),
-    "4" : ("VP9", "libvpx-vp9"),
-    "5" : ("MPEG-4 Part 2", "mpeg4"),
-    "6" : ("AV1", "libaom-av1"),
-    "7" : ("Best/Recomended", None)
+    # <id> : (<label>, <ffmpeg>, <ffprobe>)
+    "1" : ("H.264", "libx264", "h264"),
+    "2" : ("H.265", "libx265", "hevc"),
+    "3" : ("Xvid", "libxvid", "mpeg4"),
+    "4" : ("VP9", "libvpx-vp9", "vp9"),
+    "5" : ("MPEG-4 Part 2", "mpeg4", "mpeg4"),
+    "6" : ("AV1", "libaom-av1", "av1"),
+    "7" : ("Best/Recomended", None, None)
 }
 
 audio_codec_option = {
-    "1" : ("AAC", "aac"),
-    "2" : ("MP3", "libmp3lame"),
-    "3" : ("Opus", "libopus"),
-    "4" : ("Vorbis", "libvorbis"),
-    "5" : ("WAV", "pcm_s16le"),
-    "6" : ("AC3", "ac3"),
-    "7" : ("Best/Recomended", None)
+    # <id> : (<label>, <ffmpeg>, <ffprobe>)
+    "1" : ("AAC", "aac", "aac"),
+    "2" : ("MP3", "libmp3lame", "mp3"),
+    "3" : ("Opus", "libopus", "opus"),
+    "4" : ("Vorbis", "libvorbis", "vorbis"),
+    "5" : ("WAV", "pcm_s16le", "pcm_s16le"),
+    "6" : ("AC3", "ac3", "ac3"),
+    "7" : ("Best/Recomended", None, None)
 }
 
 audio_container_option = {
